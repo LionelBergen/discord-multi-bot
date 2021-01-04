@@ -15,6 +15,9 @@
     "eslint-config-strongloop": "^2.1.0",
     "mocha": "^8.2.1"
   },
+  "dependencies": {
+    "discord.js": "^11.5.1"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/LionelBergen/discord-multi-bot.git"

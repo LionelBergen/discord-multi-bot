@@ -3,7 +3,7 @@ const clients = [];
 
 class DiscordManager {
   initNewDiscordClient(discordToken) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const client = new Discord.Client();
 
       client.on('ready', () => {
@@ -15,6 +15,8 @@ class DiscordManager {
         console.log(`Logged in as ${client.user.tag}`);
         resolve(client.user.tag);
       });
+      
+      client.on('error', reject);
     });
   }
   
