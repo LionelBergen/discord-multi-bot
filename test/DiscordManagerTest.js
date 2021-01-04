@@ -1,8 +1,19 @@
 const DiscordManager = require('../src/DiscordManager.js');
+const Discord = require('discord.js');
 const assert = require('assert');
+const MockDiscordClient = require('./resources/MockDiscordClient.js');
 
 describe('Init Discord Client', () => {
-  it('Should init new client', () => {
-    const newTag = DiscordManager.initNewDiscordClient('######');
+  it('Should init 2 new clients', async () => {
+    const fakeDiscordToken1 = '$$$$$$$$';
+    const fakeDiscordToken2 = '###########';
+    MockDiscordClient.login(fakeDiscordToken1);
+    
+    const newTag1 = await DiscordManager.initNewDiscordClient(fakeDiscordToken1);
+    assert.ok(newTag1);
+    
+    MockDiscordClient.login(fakeDiscordToken2);
+    const newTag2 = await DiscordManager.initNewDiscordClient(fakeDiscordToken2);
+    assert.ok(newTag2);
   });
 });

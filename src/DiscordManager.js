@@ -5,6 +5,7 @@ class DiscordManager {
   initNewDiscordClient(discordToken) {
     return new Promise((resolve, reject) => {
       const client = new Discord.Client();
+      console.log(client);
 
       client.on('ready', () => {
         console.log(`Client ready, user.tag is: ${client.user.tag}`);
@@ -14,7 +15,7 @@ class DiscordManager {
       client.login(discordToken).then(function() {
         console.log(`Logged in as ${client.user.tag}`);
         resolve(client.user.tag);
-      });
+      }).catch(reject);
       
       client.on('error', reject);
     });
