@@ -3,7 +3,7 @@ const clients = [];
 
 class DiscordManager {
   initNewDiscordClient(discordToken) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const client = new Discord.Client();
 
       client.on('ready', () => {
