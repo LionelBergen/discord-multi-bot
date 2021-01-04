@@ -1,0 +1,33 @@
+{
+  "name": "discord-multi-bot",
+  "version": "1.0.0",
+  "description": "Simple module for interacting with 1 or more Discord clients",
+  "main": "src/DiscordManager.js",
+  "scripts": {
+    "test": "mocha",
+    "eslint": "eslint --ignore-path .gitignore .",
+    "lint_auto_fix": "eslint --fix --ignore-path .gitignore ."
+  },
+  "author": "Lionel Bergen",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^7.10.0",
+    "eslint-config-strongloop": "^2.1.0",
+    "mocha": "^8.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LionelBergen/discord-multi-bot.git"
+  },
+  "keywords": [
+    "discord",
+    "discord-api",
+    "discord-bot",
+    "discord-client",
+    "discord-wrapper"
+  ],
+  "bugs": {
+    "url": "https://github.com/LionelBergen/discord-multi-bot/issues"
+  },
+  "homepage": "https://github.com/LionelBergen/discord-multi-bot#readme"
+}
