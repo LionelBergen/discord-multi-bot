@@ -66,4 +66,8 @@ describe('sendDiscordMessage', () => {
     DiscordManager.sendDiscordMessage(newTag1, 'fakeChannel', mockDiscordMessage);
     assert.ok(wasSendFunctionSent);
   });
+  // TODO: Write tests for other paths
 });
+
+// TODO: Write tests for logout
+
