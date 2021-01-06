@@ -32,12 +32,38 @@ describe('Init Discord Client', () => {
       // pass
     }
   });
-  
+});
+
+describe('test handling events', () => {
   // Not sure what should happen when errors occur via discord.
   it('When Discord has an error event', async () => {
     MockDiscordClient.login('fakediscordtoken');
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
     assert.ok(newTag1);
     MockDiscordClient.activateEventError();
+  });
+  
+  it('When Discord has a ready event, add new client', async () => {
+    MockDiscordClient.login('fakediscordtoken');
+    const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
+    assert.ok(newTag1);
+    MockDiscordClient.activateReadyEvent();
+    // can't assert clients, but just ensure no errors occur
+  });
+});
+
+describe('sendDiscordMessage', () => {
+  it('Should send a discord message', async () => {
+    const mockDiscordMessage = "hello";
+    let wasSendFunctionSent = false;
+    MockDiscordClient.login('fakediscordtoken');
+    MockDiscordClient.addChannel('fakeChannel', function(message) { 
+      assert.equal(mockDiscordMessage, message); 
+      wasSendFunctionSent = true;
+    });
+    const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
+    
+    DiscordManager.sendDiscordMessage(newTag1, 'fakeChannel', mockDiscordMessage);
+    assert.ok(wasSendFunctionSent);
   });
 });

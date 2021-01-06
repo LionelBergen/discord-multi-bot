@@ -23,16 +23,16 @@ class DiscordManager {
     });
   }
   
-  sendDiscordMessage(botUserTag, channelName, redditComment) {
+  sendDiscordMessage(botUserTag, channelName, message) {
     const client = findClientByTagName(botUserTag);
     const channelToCommunicateWith = findChannelByName(client.channels, channelName);
     
     if (!channelToCommunicateWith) {
-      throw 'ChannelToComminicateWith is null!!';
-    } else if (!redditComment || !redditComment.body || !redditComment.permalink) {
-      throw 'Comment not well formed!';
+      throw 'Cannot find a channel with name: ' + channelName;
+    } else if (!message) {
+      throw 'Comment needs to have a value!';
     } else {
-      channelToCommunicateWith.send(`Comment: ${redditComment.body}\r\nlink: https://reddit.com${redditComment.permalink}`);
+      channelToCommunicateWith.send(message);
     }
   }
 
