@@ -1,10 +1,12 @@
-const DiscordManager = require('../src/DiscordManager.js');
+let DiscordManager = require('../src/DiscordManager.js');
 const Discord = require('discord.js');
 const assert = require('assert');
 const MockDiscordClient = require('./resources/MockDiscordClient.js');
 
 afterEach(function() {
   MockDiscordClient.reset();
+  delete require.cache[require.resolve('../src/DiscordManager.js')];
+  DiscordManager = require('../src/DiscordManager.js');
 });
 
 describe('Init Discord Client', () => {
@@ -61,18 +63,41 @@ describe('sendDiscordMessage', () => {
   it('Should send a discord message', async () => {
     const mockDiscordMessage = "hello";
     let wasSendFunctionSent = false;
+    
+    // login to discord
     MockDiscordClient.login('fakediscordtoken');
+    const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
+    MockDiscordClient.activateReadyEvent();
+
+    // Add a discord channel and ready Discord Client
     MockDiscordClient.addChannel('fakeChannel', function(message) { 
       assert.equal(mockDiscordMessage, message); 
       wasSendFunctionSent = true;
       return Promise.resolve('suceeded');
     });
-    const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
     
+    // Send message to the channel
     const result = await DiscordManager.sendDiscordMessage(newTag1, 'fakeChannel', mockDiscordMessage);
     assert.ok(wasSendFunctionSent);
-    console.log(result);
-    assert.equal(result, 'suceeded');
+    assert.equal('suceeded', result);
+  });
+  
+  it('Should throw an error when Discord does', async () => {
+    const mockDiscordMessage = "hello";
+    MockDiscordClient.login('fakediscordtoken');
+    const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
+    MockDiscordClient.activateReadyEvent();
+    MockDiscordClient.addChannel('fakeChannel', function(message) {
+      return Promise.reject('Some fake Discord error');
+    });
+    
+    await DiscordManager.sendDiscordMessage(newTag1, 'fakeChannel', mockDiscordMessage)
+    .then(function(data) { 
+      assert.fail("expected to fail. returned data: " + data);
+    })
+    .catch(function(error) {
+      assert.equal('Some fake Discord error', error);
+    });    
   });
   // TODO: Write tests for other paths
 });

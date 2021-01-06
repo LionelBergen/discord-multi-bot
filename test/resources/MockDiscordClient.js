@@ -11,7 +11,6 @@ class FakeDiscordClient {
     this.user = {tag: (tag || 'mockUserTag') };
   }
   
-  // tODO: keep reference of 'error' event, and make a function for checking the error is being handled.
   on(nameOfEvent, data) {
     if (nameOfEvent == 'error') {
       this.errorEventFunction = data;
@@ -43,26 +42,34 @@ class FakeDiscordClientThrowsErrors extends FakeDiscordClient {
 
 class MockDiscordClient {
   constructor() {
+    this.resetAllVariables();
+  }
+  
+  // TODO: uninitialized confusion
+  resetAllVariables() {
     this.loginCalls = 0;
     this.clientConstructorStub = sandbox.stub(Discord, 'Client');
     this.discordMockClient;
+    // Client() method called but not run yet
+    this.discordMockClientUninitialized;
   }
   
   login(discordToken, clientTag) {
     const self = this;
     this.clientConstructorStub.callsFake(function() {
-      self.discordMockClient = new FakeDiscordClient(discordToken, clientTag);
-      return self.discordMockClient;
+      self.discordMockClientUninitialized = new FakeDiscordClient(discordToken, clientTag);
+      return self.discordMockClientUninitialized;
     }).onCall(this.loginCalls);
     this.loginCalls++;
   }
   
   activateEventError() {
-    this.discordMockClient.activateEventError();
+    this.discordMockClientUninitialized.activateEventError();
   }
   
   activateReadyEvent() {
-    this.discordMockClient.activateReadyEvent();
+    this.discordMockClientUninitialized.activateReadyEvent();
+    this.discordMockClient = this.discordMockClientUninitialized;
   }
   
   loginThrowsError(discordToken) {
@@ -72,15 +79,14 @@ class MockDiscordClient {
     this.loginCalls++;
   }
   
-  addChannel(channelName, channelFunction) {
-    this.discordMockClient.channels.push({name: channelName, send: channelFunction});
+  addChannel(channelName, channelSendFunction) {
+    this.discordMockClient.channels.push({name: channelName, send: channelSendFunction});
   }
   
   reset() {
     sandbox.resetBehavior();
     sandbox.restore();
-    this.loginCalls = 0;
-    this.clientConstructorStub = sandbox.stub(Discord, 'Client');
+    this.resetAllVariables();
   }
 }
 
