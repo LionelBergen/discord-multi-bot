@@ -67,7 +67,6 @@ describe('sendDiscordMessage', () => {
     // login to discord
     MockDiscordClient.login('fakediscordtoken');
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
-    MockDiscordClient.activateReadyEvent();
 
     // Add a discord channel and ready Discord Client
     MockDiscordClient.addChannel('fakeChannel', function(message) { 
@@ -75,13 +74,14 @@ describe('sendDiscordMessage', () => {
       wasSendFunctionSent = true;
       return Promise.resolve('suceeded');
     });
+    MockDiscordClient.activateReadyEvent();
     
     // Send message to the channel
     const result = await DiscordManager.sendDiscordMessage(newTag1, 'fakeChannel', mockDiscordMessage);
     assert.ok(wasSendFunctionSent);
     assert.equal('suceeded', result);
   });
-  
+
   it('Should throw an error when Discord does', async () => {
     const mockDiscordMessage = "hello";
     MockDiscordClient.login('fakediscordtoken');
@@ -99,9 +99,53 @@ describe('sendDiscordMessage', () => {
       assert.equal('Some fake Discord error', error);
     });    
   });
-  // TODO: Write tests for not finding channel, not finding client.
-  //  Then eventually the message being too long, once we are sure we can handle discord errors (test live, outside of this project FIRST).
+
+  it('Should throw an error when channel cannot be found', async () => {
+    const mockDiscordMessage = "hello";
+    MockDiscordClient.login('fakediscordtoken');
+    const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
+    MockDiscordClient.activateReadyEvent();
+    MockDiscordClient.addChannel('fakeChannel', function(message) {
+      return Promise.resolve();
+    });
+    
+    try {
+      await DiscordManager.sendDiscordMessage(newTag1, 'nonExistentChannel', mockDiscordMessage);
+      fail("expected to throw an error..");
+    } catch(error) {
+      assert.equal("Cannot find a channel with name: nonExistentChannel", error);
+    }
+  });
+  
+  it('Should throw an error when client cannot be found', async () => {
+    const mockDiscordMessage = "hello";
+    MockDiscordClient.login('fakediscordtoken');
+    const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
+    MockDiscordClient.activateReadyEvent();
+    MockDiscordClient.addChannel('fakeChannel', function(message) {
+      return Promise.resolve();
+    });
+    
+    try {
+      await DiscordManager.sendDiscordMessage('nonExistedTag', 'fakeChannel', mockDiscordMessage);
+      fail("expected to throw an error..");
+    } catch(error) {
+      assert.equal("Cannot find client matching tag: nonExistedTag", error);
+    }
+  });
+  
+  // TODO: eventually the message being too long, once we are sure we can handle discord errors (test live, outside of this project FIRST).
 });
 
 // TODO: Write tests for logout
+
+
+
+
+
+
+
+
+
+
 

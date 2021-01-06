@@ -5,9 +5,9 @@ const sinon = require('sinon');
 const sandbox = sinon.createSandbox();
 
 class FakeDiscordClient {
-  constructor(expectedDiscordToken, tag) {
+  constructor(expectedDiscordToken, tag, channels) {
     this.expectedDiscordToken = expectedDiscordToken;
-    this.channels = [];
+    this.channels = channels || [];
     this.user = {tag: (tag || 'mockUserTag') };
   }
   
@@ -45,31 +45,29 @@ class MockDiscordClient {
     this.resetAllVariables();
   }
   
-  // TODO: uninitialized confusion
   resetAllVariables() {
     this.loginCalls = 0;
     this.clientConstructorStub = sandbox.stub(Discord, 'Client');
     this.discordMockClient;
-    // Client() method called but not run yet
-    this.discordMockClientUninitialized;
+    this.channelsOfDiscordClient = [];
   }
   
   login(discordToken, clientTag) {
     const self = this;
     this.clientConstructorStub.callsFake(function() {
-      self.discordMockClientUninitialized = new FakeDiscordClient(discordToken, clientTag);
-      return self.discordMockClientUninitialized;
+      self.discordMockClient = new FakeDiscordClient(discordToken, clientTag, self.channelsOfDiscordClient);
+      return self.discordMockClient;
     }).onCall(this.loginCalls);
     this.loginCalls++;
   }
   
   activateEventError() {
-    this.discordMockClientUninitialized.activateEventError();
+    this.discordMockClient.activateEventError();
   }
   
   activateReadyEvent() {
-    this.discordMockClientUninitialized.activateReadyEvent();
-    this.discordMockClient = this.discordMockClientUninitialized;
+    this.discordMockClient.activateReadyEvent();
+    this.discordMockClient = this.discordMockClient;
   }
   
   loginThrowsError(discordToken) {
@@ -80,7 +78,7 @@ class MockDiscordClient {
   }
   
   addChannel(channelName, channelSendFunction) {
-    this.discordMockClient.channels.push({name: channelName, send: channelSendFunction});
+    this.channelsOfDiscordClient.push({name: channelName, send: channelSendFunction});
   }
   
   reset() {
