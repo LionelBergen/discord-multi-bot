@@ -40,7 +40,12 @@ describe('test handling events', () => {
     MockDiscordClient.login('fakediscordtoken');
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
     assert.ok(newTag1);
-    MockDiscordClient.activateEventError();
+    try {
+      MockDiscordClient.activateEventError();
+      assert.fail("error should have been thrown...");
+    } catch(error) {
+      assert.equal("Testing error", error);
+    }
   });
   
   it('When Discord has a ready event, add new client', async () => {

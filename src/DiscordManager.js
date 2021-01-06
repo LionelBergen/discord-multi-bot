@@ -15,10 +15,10 @@ class DiscordManager {
         console.log(`Logged in as ${client.user.tag}`);
         resolve(client.user.tag);
       }).catch(reject);
-      
+
       client.on('error', function(error) {
         console.error('ERRROR from Discord Client: ' + error);
-        reject(error);
+        throw error;
       });
     });
   }
