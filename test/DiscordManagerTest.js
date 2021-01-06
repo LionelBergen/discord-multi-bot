@@ -99,7 +99,8 @@ describe('sendDiscordMessage', () => {
       assert.equal('Some fake Discord error', error);
     });    
   });
-  // TODO: Write tests for other paths
+  // TODO: Write tests for not finding channel, not finding client.
+  //  Then eventually the message being too long, once we are sure we can handle discord errors (test live, outside of this project FIRST).
 });
 
 // TODO: Write tests for logout
