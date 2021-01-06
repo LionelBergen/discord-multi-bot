@@ -65,11 +65,14 @@ describe('sendDiscordMessage', () => {
     MockDiscordClient.addChannel('fakeChannel', function(message) { 
       assert.equal(mockDiscordMessage, message); 
       wasSendFunctionSent = true;
+      return Promise.resolve('suceeded');
     });
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
     
-    DiscordManager.sendDiscordMessage(newTag1, 'fakeChannel', mockDiscordMessage);
+    const result = await DiscordManager.sendDiscordMessage(newTag1, 'fakeChannel', mockDiscordMessage);
     assert.ok(wasSendFunctionSent);
+    console.log(result);
+    assert.equal(result, 'suceeded');
   });
   // TODO: Write tests for other paths
 });

@@ -18,6 +18,7 @@ class DiscordManager {
 
       client.on('error', function(error) {
         console.error('ERRROR from Discord Client: ' + error);
+        // can't reject here since its most likely that we already resolved
         throw error;
       });
     });
@@ -32,7 +33,7 @@ class DiscordManager {
     } else if (!message) {
       throw 'Comment needs to have a value!';
     } else {
-      channelToCommunicateWith.send(message);
+      return channelToCommunicateWith.send(message);
     }
   }
 
