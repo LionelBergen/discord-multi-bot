@@ -134,7 +134,39 @@ describe('sendDiscordMessage', () => {
     }
   });
   
-  // TODO: eventually the message being too long, once we are sure we can handle discord errors (test live, outside of this project FIRST).
+  it('Should throw an error when channel cannot be found', async () => {
+    const mockDiscordMessage = "hello";
+    MockDiscordClient.login('fakediscordtoken');
+    const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
+    MockDiscordClient.activateReadyEvent();
+    MockDiscordClient.addChannel('fakeChannel', function(message) {
+      return Promise.resolve();
+    });
+    
+    try {
+      await DiscordManager.sendDiscordMessage(newTag1, 'nonExistentChannel', mockDiscordMessage);
+      fail("expected to throw an error..");
+    } catch(error) {
+      assert.equal("Cannot find a channel with name: nonExistentChannel", error);
+    }
+  });
+  
+  it('Should throw an error when message is 2,000 characters long', async () => {
+    const mockDiscordMessage = 'hello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message';
+    MockDiscordClient.login('fakediscordtoken');
+    const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
+    MockDiscordClient.activateReadyEvent();
+    MockDiscordClient.addChannel('fakeChannel', function(message) {
+      return Promise.resolve();
+    });
+    
+    try {
+      await DiscordManager.sendDiscordMessage(newTag1, 'fakeChannel', mockDiscordMessage);
+      fail("expected to throw an error..");
+    } catch(error) {
+      assert.equal("Message cannot be 2000 characters long!", error);
+    }
+  });
 });
 
 // TODO: Write tests for logout
