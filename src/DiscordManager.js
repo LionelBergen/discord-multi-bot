@@ -16,7 +16,10 @@ class DiscordManager {
         resolve(client.user.tag);
       }).catch(reject);
       
-      client.on('error', reject);
+      client.on('error', function(error) {
+        console.error('ERRROR from Discord Client: ' + error);
+        reject(error);
+      });
     });
   }
   

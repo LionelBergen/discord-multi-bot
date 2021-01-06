@@ -11,6 +11,13 @@ class FakeDiscordClient {
   
   // tODO: keep reference of 'error' event, and make a function for checking the error is being handled.
   on(nameOfEvent, data) {
+    if (nameOfEvent == 'error') {
+      this.errorEventFunction = data;
+    }
+  }
+  
+  activateEventError() {
+    this.errorEventFunction('Testing error');
   }
   
   login(discordToken) {
@@ -30,14 +37,20 @@ class MockDiscordClient {
   constructor() {
     this.loginCalls = 0;
     this.clientConstructorStub = sandbox.stub(Discord, 'Client');
+    this.discordMockClient;
   }
   
   login(discordToken) {
+    const self = this;
     this.clientConstructorStub.callsFake(function() {
-      // TODO: keep reference, eg this.loggedInClient = ...
-      return new FakeDiscordClient(discordToken);
+      self.discordMockClient = new FakeDiscordClient(discordToken);
+      return self.discordMockClient;
     }).onCall(this.loginCalls);
     this.loginCalls++;
+  }
+  
+  activateEventError() {
+    this.discordMockClient.activateEventError();
   }
   
   loginThrowsError(discordToken) {
