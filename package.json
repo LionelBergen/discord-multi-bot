@@ -1,6 +1,6 @@
 {
   "name": "discord-multi-bot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Simple module for interacting with 1 or more Discord clients",
   "main": "src/DiscordManager.js",
   "scripts": {
