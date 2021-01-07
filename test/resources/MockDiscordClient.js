@@ -80,7 +80,6 @@ class MockDiscordClientHandler {
       self.discordMockClients.push(mockDiscordClient);
       return mockDiscordClient;
     });
-    this.loginCalls++;
   }
   
   /**
@@ -89,10 +88,10 @@ class MockDiscordClientHandler {
    * @param discordToken - DiscordToken of the mock client
   */
   expectDiscordNewClientCallThatThrowsErrorOnLogin(discordToken) {
+    // Mock out Discord.Client() method
     this.clientConstructorStub.callsFake(function() {
       return new FakeDiscordClientThrowsErrors(discordToken);
     });
-    this.loginCalls++;
   }
   
   /**
