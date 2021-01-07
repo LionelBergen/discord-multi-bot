@@ -42,19 +42,33 @@ class FakeDiscordClientThrowsErrors extends FakeDiscordClient {
 
 // TODO: change name to 'handler'. This handles Discord.js clientS.
 // TODO: Maybe change names to 'expectLogic', etc.
-class MockDiscordClient {
+/**
+ * Handles mock calls to Discord.js
+*/
+class MockDiscordClientHandler {
   constructor() {
     this.resetAllVariables();
   }
   
+  /**
+   * This will most likely need to be called in between tests
+  */
   resetAllVariables() {
     this.loginCalls = 0;
     this.clientConstructorStub = sandbox.stub(Discord, 'Client');
     this.discordMockClients = [];
   }
   
-  login(discordToken, clientTag, channelsList) {
+  /**
+   * Mocks out Discord.Client(), making it return a MockClient
+   *
+   * @param discordToken - DiscordToken of the mock client
+   * @param clientTag - User.tag of the mock client
+   * @param channelsList - List of channels for the mock client
+  */
+  expectDiscordNewClientCall(discordToken, clientTag, channelsList) {
     const self = this;
+    // Mock out Discord.Client() method
     this.clientConstructorStub.callsFake(function() {
       const mockDiscordClient = new FakeDiscordClient(discordToken, clientTag, channelsList);
       self.discordMockClients.push(mockDiscordClient);
@@ -87,4 +101,4 @@ class MockDiscordClient {
   }
 }
 
-module.exports = new MockDiscordClient();
+module.exports = new MockDiscordClientHandler();

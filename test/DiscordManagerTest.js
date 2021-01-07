@@ -13,12 +13,12 @@ describe('Init Discord Client', () => {
   it('Should init 2 new clients', async () => {
     const fakeDiscordToken1 = '$$$$$$$$';
     const fakeDiscordToken2 = '###########';
-    MockDiscordClient.login(fakeDiscordToken1);
+    MockDiscordClient.expectDiscordNewClientCall(fakeDiscordToken1);
     
     const newTag1 = await DiscordManager.initNewDiscordClient(fakeDiscordToken1);
     assert.ok(newTag1);
     
-    MockDiscordClient.login(fakeDiscordToken2);
+    MockDiscordClient.expectDiscordNewClientCall(fakeDiscordToken2);
     const newTag2 = await DiscordManager.initNewDiscordClient(fakeDiscordToken2);
     assert.ok(newTag2);
   });
@@ -38,7 +38,7 @@ describe('Init Discord Client', () => {
 
 describe('test handling events', () => {
   it('When Discord has an error event', async () => {
-    MockDiscordClient.login('fakediscordtoken');
+    MockDiscordClient.expectDiscordNewClientCall('fakediscordtoken');
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
     assert.ok(newTag1);
     try {
@@ -50,7 +50,7 @@ describe('test handling events', () => {
   });
   
   it('When Discord has a ready event, add new client', async () => {
-    MockDiscordClient.login('fakediscordtoken');
+    MockDiscordClient.expectDiscordNewClientCall('fakediscordtoken');
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
     assert.ok(newTag1);
     MockDiscordClient.activateReadyEvent(newTag1);
@@ -63,7 +63,7 @@ describe('sendDiscordMessage', () => {
     const mockDiscordMessage = "hello";
     
     // login to discord
-    MockDiscordClient.login('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunction()}]);
+    MockDiscordClient.expectDiscordNewClientCall('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunction()}]);
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
 
     // Send mock ready event
@@ -82,10 +82,10 @@ describe('sendDiscordMessage', () => {
     const mockDiscordMessageForClient1 = "hello";
     const mockDiscordMessageForClient2 = "gfldhjgfldkjgfldkjgfdkljfg";
     
-    MockDiscordClient.login('fakediscordtoken1', undefined, [{name: 'fakeChannel1', send: createFakeSendFunction(mockDiscordMessageForClient1)}]);
+    MockDiscordClient.expectDiscordNewClientCall('fakediscordtoken1', undefined, [{name: 'fakeChannel1', send: createFakeSendFunction(mockDiscordMessageForClient1)}]);
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken1');
     
-    MockDiscordClient.login('fakediscordtoken2', undefined, [{name: 'fakeChannel2', send: createFakeSendFunction(mockDiscordMessageForClient2)}]);
+    MockDiscordClient.expectDiscordNewClientCall('fakediscordtoken2', undefined, [{name: 'fakeChannel2', send: createFakeSendFunction(mockDiscordMessageForClient2)}]);
     const newTag2 = await DiscordManager.initNewDiscordClient('fakediscordtoken2');
 
     MockDiscordClient.activateReadyEvent(newTag1);
@@ -101,7 +101,7 @@ describe('sendDiscordMessage', () => {
   it('Should throw an error when Discord does', async () => {
     const mockDiscordMessage = "hello";
     const mockError = 'Some fake discord error';
-    MockDiscordClient.login('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunctionThrowsError(mockError)}]);
+    MockDiscordClient.expectDiscordNewClientCall('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunctionThrowsError(mockError)}]);
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
     MockDiscordClient.activateReadyEvent(newTag1);
     
@@ -116,7 +116,7 @@ describe('sendDiscordMessage', () => {
 
   it('Should throw an error when channel cannot be found', async () => {
     const mockDiscordMessage = "hello";
-    MockDiscordClient.login('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunction(mockDiscordMessage)}]);
+    MockDiscordClient.expectDiscordNewClientCall('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunction(mockDiscordMessage)}]);
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
     MockDiscordClient.activateReadyEvent(newTag1);
     
@@ -130,7 +130,7 @@ describe('sendDiscordMessage', () => {
 
   it('Should throw an error when client cannot be found', async () => {
     const mockDiscordMessage = "hello";
-    MockDiscordClient.login('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunction(mockDiscordMessage)}]);
+    MockDiscordClient.expectDiscordNewClientCall('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunction(mockDiscordMessage)}]);
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
     MockDiscordClient.activateReadyEvent(newTag1);
     
@@ -144,7 +144,7 @@ describe('sendDiscordMessage', () => {
 
   it('Should throw an error when channel cannot be found', async () => {
     const mockDiscordMessage = "hello";
-    MockDiscordClient.login('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunction(mockDiscordMessage)}]);
+    MockDiscordClient.expectDiscordNewClientCall('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunction(mockDiscordMessage)}]);
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
     MockDiscordClient.activateReadyEvent(newTag1);
     
@@ -158,7 +158,7 @@ describe('sendDiscordMessage', () => {
   
   it('Should throw an error when message is 2,000 characters long', async () => {
     const mockDiscordMessage = 'hello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message';
-    MockDiscordClient.login('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunction(mockDiscordMessage)}]);
+    MockDiscordClient.expectDiscordNewClientCall('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunction(mockDiscordMessage)}]);
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
     MockDiscordClient.activateReadyEvent(newTag1);
     
