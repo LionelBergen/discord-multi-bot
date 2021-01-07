@@ -25,7 +25,7 @@ describe('Init Discord Client', () => {
   
   it('When Discord init throws error', async () => {
     const fakeDiscordToken1 = '$$$$$$$$';
-    MockDiscordClient.loginThrowsError(fakeDiscordToken1);
+    MockDiscordClient.expectDiscordNewClientCallThatThrowsErrorOnLogin(fakeDiscordToken1);
     
     try {
       DiscordManager.initNewDiscordClient(fakeDiscordToken1);
@@ -172,6 +172,7 @@ describe('sendDiscordMessage', () => {
 });
 
 // TODO: Write tests for logout
+// TODO: Write tests for one client failing, other client still able to send messages
 
 function createFakeSendFunctionThrowsError(errorToThrow) {
   return function(message) {
