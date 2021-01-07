@@ -40,6 +40,8 @@ class FakeDiscordClientThrowsErrors extends FakeDiscordClient {
   }
 }
 
+// TODO: change name to 'handler'. This handles Discord.js clientS.
+// TODO: Maybe change names to 'expectLogic', etc.
 class MockDiscordClient {
   constructor() {
     this.resetAllVariables();
