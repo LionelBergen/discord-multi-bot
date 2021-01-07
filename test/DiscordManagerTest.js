@@ -172,18 +172,23 @@ describe('sendDiscordMessage', () => {
 });
 
 describe('LogoutOfDiscord', () => {
-  it('should logout',  async () => {
-    MockDiscordClient.expectDiscordNewClientCall('fakediscordtoken');
-    const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
+  it('should logout, multiple clients test',  async () => {
+    MockDiscordClient.expectDiscordNewClientCall('fakediscordtoken1');
+    const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken1');
     MockDiscordClient.activateReadyEvent(newTag1);
     
+    MockDiscordClient.expectDiscordNewClientCall('fakediscordtoken2');
+    const newTag2 = await DiscordManager.initNewDiscordClient('fakediscordtoken2');
+    MockDiscordClient.activateReadyEvent(newTag2);
+    
     assert.ok(DiscordManager.logoutOfDiscord(newTag1));
+    assert.ok(DiscordManager.logoutOfDiscord(newTag2));
   });
   
 });
 
-// TODO: Write tests for logout
 // TODO: Write tests for one client failing, other client still able to send messages
+// TODO: Write tests for one client logging out, other client still able to send messages
 
 function createFakeSendFunctionThrowsError(errorToThrow) {
   return function(message) {
