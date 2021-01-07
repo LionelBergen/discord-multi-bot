@@ -98,10 +98,10 @@ describe('sendDiscordMessage', () => {
     assert.equal('suceeded', result);
   });
 
-  it('Should throw an error when Discord does', async () => {
+  it('Should throw an error when Discord does (send function)', async () => {
     const mockDiscordMessage = "hello";
     const mockError = 'Some fake discord error';
-    MockDiscordClient.expectDiscordNewClientCall('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunctionThrowsError(mockError)}]);
+    MockDiscordClient.expectDiscordNewClientCall('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunctionThrowsErrorOnFirstSend(mockError)}]);
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
     MockDiscordClient.activateReadyEvent(newTag1);
     
@@ -111,7 +111,10 @@ describe('sendDiscordMessage', () => {
     })
     .catch(function(error) {
       assert.equal(mockError, error);
-    });    
+    });
+
+    // ensure client can still send data
+    assert.ok(DiscordManager.sendDiscordMessage(newTag1, 'fakeChannel', 'some message'));
   });
 
   it('Should throw an error when channel cannot be found', async () => {
@@ -229,9 +232,11 @@ describe('Clients should not interfere with eachother', () => {
 
 // TODO: Add mock methods for asserting that the Discord.js calls were made
 
-function createFakeSendFunctionThrowsError(errorToThrow) {
+function createFakeSendFunctionThrowsErrorOnFirstSend(errorToThrow) {
+  let i = 0;
   return function(message) {
-    return Promise.reject(errorToThrow);
+    i++;
+    return i==1 ? Promise.reject(errorToThrow) : Promise.resolve();
   };
 }
 
