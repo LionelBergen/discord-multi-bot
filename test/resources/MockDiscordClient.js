@@ -48,26 +48,27 @@ class MockDiscordClient {
   resetAllVariables() {
     this.loginCalls = 0;
     this.clientConstructorStub = sandbox.stub(Discord, 'Client');
-    this.discordMockClient;
-    this.channelsOfDiscordClient = [];
+    this.discordMockClients = [];
   }
   
-  login(discordToken, clientTag) {
+  login(discordToken, clientTag, channelsList) {
     const self = this;
     this.clientConstructorStub.callsFake(function() {
-      self.discordMockClient = new FakeDiscordClient(discordToken, clientTag, self.channelsOfDiscordClient);
-      return self.discordMockClient;
+      const mockDiscordClient = new FakeDiscordClient(discordToken, clientTag, channelsList);
+      self.discordMockClients.push(mockDiscordClient);
+      return mockDiscordClient;
     }).onCall(this.loginCalls);
     this.loginCalls++;
   }
   
-  activateEventError() {
-    this.discordMockClient.activateEventError();
+  activateEventError(clientTag) {
+    const discordMockClient = this.discordMockClients.find(e => e.user.tag === clientTag);
+    discordMockClient.activateEventError();
   }
   
-  activateReadyEvent() {
-    this.discordMockClient.activateReadyEvent();
-    this.discordMockClient = this.discordMockClient;
+  activateReadyEvent(clientTag) {
+    const discordMockClient = this.discordMockClients.find(e => e.user.tag === clientTag);
+    discordMockClient.activateReadyEvent();
   }
   
   loginThrowsError(discordToken) {
@@ -75,10 +76,6 @@ class MockDiscordClient {
       return new FakeDiscordClientThrowsErrors(discordToken);
     }).onCall(this.loginCalls);
     this.loginCalls++;
-  }
-  
-  addChannel(channelName, channelSendFunction) {
-    this.channelsOfDiscordClient.push({name: channelName, send: channelSendFunction});
   }
   
   reset() {

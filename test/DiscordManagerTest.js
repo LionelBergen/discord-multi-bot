@@ -37,13 +37,12 @@ describe('Init Discord Client', () => {
 });
 
 describe('test handling events', () => {
-  // Not sure what should happen when errors occur via discord.
   it('When Discord has an error event', async () => {
     MockDiscordClient.login('fakediscordtoken');
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
     assert.ok(newTag1);
     try {
-      MockDiscordClient.activateEventError();
+      MockDiscordClient.activateEventError(newTag1);
       assert.fail("error should have been thrown...");
     } catch(error) {
       assert.equal("Testing error", error);
@@ -54,60 +53,68 @@ describe('test handling events', () => {
     MockDiscordClient.login('fakediscordtoken');
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
     assert.ok(newTag1);
-    MockDiscordClient.activateReadyEvent();
-    // can't assert clients, but just ensure no errors occur
+    MockDiscordClient.activateReadyEvent(newTag1);
+    // We can't assert the client was added, so do nothing
   });
 });
 
 describe('sendDiscordMessage', () => {
   it('Should send a discord message', async () => {
     const mockDiscordMessage = "hello";
-    let wasSendFunctionSent = false;
     
     // login to discord
-    MockDiscordClient.login('fakediscordtoken');
+    MockDiscordClient.login('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunction(mockDiscordMessage)}]);
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
 
-    // Add a discord channel and ready Discord Client
-    MockDiscordClient.addChannel('fakeChannel', function(message) { 
-      assert.equal(mockDiscordMessage, message); 
-      wasSendFunctionSent = true;
-      return Promise.resolve('suceeded');
-    });
-    MockDiscordClient.activateReadyEvent();
+    // Send mock ready event
+    MockDiscordClient.activateReadyEvent(newTag1);
     
     // Send message to the channel
     const result = await DiscordManager.sendDiscordMessage(newTag1, 'fakeChannel', mockDiscordMessage);
-    assert.ok(wasSendFunctionSent);
+    assert.equal('suceeded', result);
+  });
+
+  it('Should send a discord message, two different clients', async () => {
+    const mockDiscordMessageForClient1 = "hello";
+    const mockDiscordMessageForClient2 = "gfldhjgfldkjgfldkjgfdkljfg";
+    
+    MockDiscordClient.login('fakediscordtoken1', undefined, [{name: 'fakeChannel1', send: createFakeSendFunction(mockDiscordMessageForClient1)}]);
+    const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken1');
+    
+    MockDiscordClient.login('fakediscordtoken2', undefined, [{name: 'fakeChannel2', send: createFakeSendFunction(mockDiscordMessageForClient2)}]);
+    const newTag2 = await DiscordManager.initNewDiscordClient('fakediscordtoken2');
+
+    MockDiscordClient.activateReadyEvent(newTag1);
+    MockDiscordClient.activateReadyEvent(newTag2);
+    
+    let result = await DiscordManager.sendDiscordMessage(newTag1, 'fakeChannel1', mockDiscordMessageForClient1);
+    assert.equal('suceeded', result);
+    
+    result = await DiscordManager.sendDiscordMessage(newTag2, 'fakeChannel2', mockDiscordMessageForClient2);
     assert.equal('suceeded', result);
   });
 
   it('Should throw an error when Discord does', async () => {
     const mockDiscordMessage = "hello";
-    MockDiscordClient.login('fakediscordtoken');
+    const mockError = 'Some fake discord error';
+    MockDiscordClient.login('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunctionThrowsError(mockError)}]);
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
-    MockDiscordClient.activateReadyEvent();
-    MockDiscordClient.addChannel('fakeChannel', function(message) {
-      return Promise.reject('Some fake Discord error');
-    });
+    MockDiscordClient.activateReadyEvent(newTag1);
     
     await DiscordManager.sendDiscordMessage(newTag1, 'fakeChannel', mockDiscordMessage)
     .then(function(data) { 
       assert.fail("expected to fail. returned data: " + data);
     })
     .catch(function(error) {
-      assert.equal('Some fake Discord error', error);
+      assert.equal(mockError, error);
     });    
   });
 
   it('Should throw an error when channel cannot be found', async () => {
     const mockDiscordMessage = "hello";
-    MockDiscordClient.login('fakediscordtoken');
+    MockDiscordClient.login('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunction(mockDiscordMessage)}]);
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
-    MockDiscordClient.activateReadyEvent();
-    MockDiscordClient.addChannel('fakeChannel', function(message) {
-      return Promise.resolve();
-    });
+    MockDiscordClient.activateReadyEvent(newTag1);
     
     try {
       await DiscordManager.sendDiscordMessage(newTag1, 'nonExistentChannel', mockDiscordMessage);
@@ -116,15 +123,12 @@ describe('sendDiscordMessage', () => {
       assert.equal("Cannot find a channel with name: nonExistentChannel", error);
     }
   });
-  
+
   it('Should throw an error when client cannot be found', async () => {
     const mockDiscordMessage = "hello";
-    MockDiscordClient.login('fakediscordtoken');
+    MockDiscordClient.login('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunction(mockDiscordMessage)}]);
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
-    MockDiscordClient.activateReadyEvent();
-    MockDiscordClient.addChannel('fakeChannel', function(message) {
-      return Promise.resolve();
-    });
+    MockDiscordClient.activateReadyEvent(newTag1);
     
     try {
       await DiscordManager.sendDiscordMessage('nonExistedTag', 'fakeChannel', mockDiscordMessage);
@@ -133,15 +137,12 @@ describe('sendDiscordMessage', () => {
       assert.equal("Cannot find client matching tag: nonExistedTag", error);
     }
   });
-  
+
   it('Should throw an error when channel cannot be found', async () => {
     const mockDiscordMessage = "hello";
-    MockDiscordClient.login('fakediscordtoken');
+    MockDiscordClient.login('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunction(mockDiscordMessage)}]);
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
-    MockDiscordClient.activateReadyEvent();
-    MockDiscordClient.addChannel('fakeChannel', function(message) {
-      return Promise.resolve();
-    });
+    MockDiscordClient.activateReadyEvent(newTag1);
     
     try {
       await DiscordManager.sendDiscordMessage(newTag1, 'nonExistentChannel', mockDiscordMessage);
@@ -153,12 +154,9 @@ describe('sendDiscordMessage', () => {
   
   it('Should throw an error when message is 2,000 characters long', async () => {
     const mockDiscordMessage = 'hello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message hello really long messagehello really long messagehello really long messagehello really long messagehello really long messagehello really long message';
-    MockDiscordClient.login('fakediscordtoken');
+    MockDiscordClient.login('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunction(mockDiscordMessage)}]);
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
-    MockDiscordClient.activateReadyEvent();
-    MockDiscordClient.addChannel('fakeChannel', function(message) {
-      return Promise.resolve();
-    });
+    MockDiscordClient.activateReadyEvent(newTag1);
     
     try {
       await DiscordManager.sendDiscordMessage(newTag1, 'fakeChannel', mockDiscordMessage);
@@ -170,6 +168,19 @@ describe('sendDiscordMessage', () => {
 });
 
 // TODO: Write tests for logout
+
+function createFakeSendFunctionThrowsError(errorToThrow) {
+  return function(message) {
+    return Promise.reject(errorToThrow);
+  };
+}
+
+function createFakeSendFunction(mockDiscordMessage) {
+  return function(message) {
+    assert.equal(mockDiscordMessage, message);
+    return Promise.resolve('suceeded');
+  };
+}
 
 
 
