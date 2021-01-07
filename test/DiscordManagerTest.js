@@ -171,6 +171,17 @@ describe('sendDiscordMessage', () => {
   });
 });
 
+describe('LogoutOfDiscord', () => {
+  it('should logout',  async () => {
+    MockDiscordClient.expectDiscordNewClientCall('fakediscordtoken');
+    const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
+    MockDiscordClient.activateReadyEvent(newTag1);
+    
+    assert.ok(DiscordManager.logoutOfDiscord(newTag1));
+  });
+  
+});
+
 // TODO: Write tests for logout
 // TODO: Write tests for one client failing, other client still able to send messages
 

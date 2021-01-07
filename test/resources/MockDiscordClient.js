@@ -35,6 +35,10 @@ class FakeDiscordClient {
     this.user = {tag: 'user#' + discordToken };
     return Promise.resolve('Mock Client Logged In');
   }
+  
+  destroy() {
+    return Promise.resolve();
+  }
 }
 
 class FakeDiscordClientThrowsErrors extends FakeDiscordClient {
