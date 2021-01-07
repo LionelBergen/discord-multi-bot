@@ -187,7 +187,7 @@ describe('LogoutOfDiscord', () => {
 });
 
 describe('Clients should not interfere with eachother', () => {
-  it('One client fails, other should stay alive and well', async () => {
+  it('One client fails or logs out, other should stay alive and well', async () => {
     MockDiscordClient.expectDiscordNewClientCall('fakediscordtoken1', undefined, [{name: 'fakeChannel1', send: createFakeSendFunction()}]);
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken1');
     
@@ -218,8 +218,12 @@ describe('Clients should not interfere with eachother', () => {
     const newTag3 = await DiscordManager.initNewDiscordClient('fakediscordtoken3');
     MockDiscordClient.activateReadyEvent(newTag3);
     assert.equal('suceeded', await DiscordManager.sendDiscordMessage(newTag3, 'fakeChannel3', 'hello from client3....'));
-    assert.equal('suceeded', await DiscordManager.sendDiscordMessage(newTag3, 'fakeChannel3', 'hello from client3....'));
     
+    // Logout of the first client
+    await DiscordManager.logoutOfDiscord(newTag1);
+    
+    // Last logged in client unaffected
+    assert.equal('suceeded', await DiscordManager.sendDiscordMessage(newTag3, 'fakeChannel3', 'hello from client3....'));
   });
 });
 
