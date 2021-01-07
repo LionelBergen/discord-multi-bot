@@ -184,10 +184,45 @@ describe('LogoutOfDiscord', () => {
     assert.ok(DiscordManager.logoutOfDiscord(newTag1));
     assert.ok(DiscordManager.logoutOfDiscord(newTag2));
   });
-  
 });
 
-// TODO: Write tests for one client failing, other client still able to send messages
+describe('Clients should not interfere with eachother', () => {
+  it('One client fails, other should stay alive and well', async () => {
+    MockDiscordClient.expectDiscordNewClientCall('fakediscordtoken1', undefined, [{name: 'fakeChannel1', send: createFakeSendFunction()}]);
+    const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken1');
+    
+    MockDiscordClient.expectDiscordNewClientCall('fakediscordtoken2', undefined, [{name: 'fakeChannel2', send: createFakeSendFunction()}]);
+    const newTag2 = await DiscordManager.initNewDiscordClient('fakediscordtoken2');
+
+    MockDiscordClient.activateReadyEvent(newTag1);
+    MockDiscordClient.activateReadyEvent(newTag2);
+    
+    assert.equal('suceeded', await DiscordManager.sendDiscordMessage(newTag1, 'fakeChannel1', 'hello from client1'));
+    assert.equal('suceeded', await DiscordManager.sendDiscordMessage(newTag2, 'fakeChannel2', 'hello from client2'));
+    
+    try {
+      // Force first client to error
+      MockDiscordClient.activateEventError(newTag1);
+      assert.fail("error was supposed to be thrown!");
+    } catch(err) {
+      // Ensure it's the error from the mock, not an assert.fail error
+      assert.equal('Testing error', err);
+    };
+    
+    // non-failing client should still be able to send messages
+    assert.equal('suceeded', await DiscordManager.sendDiscordMessage(newTag2, 'fakeChannel2', 'hello from client2...'));
+    assert.equal('suceeded', await DiscordManager.sendDiscordMessage(newTag2, 'fakeChannel2', 'hello from client2....'));
+    
+    // Throw another client into the mix
+    MockDiscordClient.expectDiscordNewClientCall('fakediscordtoken3', undefined, [{name: 'fakeChannel3', send: createFakeSendFunction()}]);
+    const newTag3 = await DiscordManager.initNewDiscordClient('fakediscordtoken3');
+    MockDiscordClient.activateReadyEvent(newTag3);
+    assert.equal('suceeded', await DiscordManager.sendDiscordMessage(newTag3, 'fakeChannel3', 'hello from client3....'));
+    assert.equal('suceeded', await DiscordManager.sendDiscordMessage(newTag3, 'fakeChannel3', 'hello from client3....'));
+    
+  });
+});
+
 // TODO: Write tests for one client logging out, other client still able to send messages
 // TODO: Add mock methods for asserting that the Discord.js calls were made
 
