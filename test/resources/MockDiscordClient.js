@@ -79,7 +79,7 @@ class MockDiscordClientHandler {
       const mockDiscordClient = new FakeDiscordClient(discordToken, clientTag, channelsList);
       self.discordMockClients.push(mockDiscordClient);
       return mockDiscordClient;
-    }).onCall(this.loginCalls);
+    });
     this.loginCalls++;
   }
   
@@ -91,7 +91,7 @@ class MockDiscordClientHandler {
   expectDiscordNewClientCallThatThrowsErrorOnLogin(discordToken) {
     this.clientConstructorStub.callsFake(function() {
       return new FakeDiscordClientThrowsErrors(discordToken);
-    }).onCall(this.loginCalls);
+    });
     this.loginCalls++;
   }
   
