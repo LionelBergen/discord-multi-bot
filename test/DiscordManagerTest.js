@@ -63,14 +63,18 @@ describe('sendDiscordMessage', () => {
     const mockDiscordMessage = "hello";
     
     // login to discord
-    MockDiscordClient.login('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunction(mockDiscordMessage)}]);
+    MockDiscordClient.login('fakediscordtoken', undefined, [{name: 'fakeChannel', send: createFakeSendFunction()}]);
     const newTag1 = await DiscordManager.initNewDiscordClient('fakediscordtoken');
 
     // Send mock ready event
     MockDiscordClient.activateReadyEvent(newTag1);
     
     // Send message to the channel
-    const result = await DiscordManager.sendDiscordMessage(newTag1, 'fakeChannel', mockDiscordMessage);
+    let result = await DiscordManager.sendDiscordMessage(newTag1, 'fakeChannel', mockDiscordMessage);
+    assert.equal('suceeded', result);
+    
+    // Send another message, for good measure
+    result = await DiscordManager.sendDiscordMessage(newTag1, 'fakeChannel', 'some other message');
     assert.equal('suceeded', result);
   });
 
@@ -177,7 +181,9 @@ function createFakeSendFunctionThrowsError(errorToThrow) {
 
 function createFakeSendFunction(mockDiscordMessage) {
   return function(message) {
-    assert.equal(mockDiscordMessage, message);
+    if (mockDiscordMessage) {
+      assert.equal(mockDiscordMessage, message);
+    }
     return Promise.resolve('suceeded');
   };
 }
