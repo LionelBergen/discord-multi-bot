@@ -227,7 +227,6 @@ describe('Clients should not interfere with eachother', () => {
   });
 });
 
-// TODO: Write tests for one client logging out, other client still able to send messages
 // TODO: Add mock methods for asserting that the Discord.js calls were made
 
 function createFakeSendFunctionThrowsError(errorToThrow) {
