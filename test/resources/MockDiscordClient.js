@@ -8,6 +8,8 @@ class FakeDiscordClient {
   constructor(expectedDiscordToken, tag, channels) {
     this.expectedDiscordToken = expectedDiscordToken;
     this.channels = channels || [];
+    this.errorEventFunction;
+    this.readyEvent;
   }
   
   on(nameOfEvent, data) {
@@ -41,8 +43,6 @@ class FakeDiscordClientThrowsErrors extends FakeDiscordClient {
   }
 }
 
-// TODO: change name to 'handler'. This handles Discord.js clientS.
-// TODO: Maybe change names to 'expectLogic', etc.
 /**
  * Handles mock calls to Discord.js
 */
@@ -113,6 +113,10 @@ class MockDiscordClientHandler {
     discordMockClient.activateReadyEvent();
   }
   
+  /**
+   * Should be called between tests.
+   * Resets Sinon objects and this class's variables
+  */
   reset() {
     sandbox.resetBehavior();
     sandbox.restore();
