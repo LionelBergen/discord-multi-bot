@@ -33,8 +33,8 @@ class DiscordManager {
     } else if (!message) {
       throw 'Comment needs to have a value!';
     } else if (message.length >= 2000) {
-        // Discord will throw this anyway. So dont waste a network call
-        throw 'Message cannot be 2000 characters long!';
+      // Discord will throw this anyway. So dont waste a network call
+      throw 'Message cannot be 2000 characters long!';
     } else {
       return channelToCommunicateWith.send(message);
     }

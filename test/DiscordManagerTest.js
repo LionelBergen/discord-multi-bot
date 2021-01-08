@@ -1,5 +1,4 @@
 let DiscordManager = require('../src/DiscordManager.js');
-const Discord = require('discord.js');
 const assert = require('assert');
 const MockDiscordClient = require('./resources/MockDiscordClient.js');
 
@@ -108,12 +107,12 @@ describe('sendDiscordMessage', () => {
     MockDiscordClient.activateReadyEvent(newTag1);
     
     await DiscordManager.sendDiscordMessage(newTag1, 'fakeChannel', mockDiscordMessage)
-    .then(function(data) { 
-      assert.fail("expected to fail. returned data: " + data);
-    })
-    .catch(function(error) {
-      assert.equal(mockError, error);
-    });
+      .then(function(data) { 
+        assert.fail("expected to fail. returned data: " + data);
+      })
+      .catch(function(error) {
+        assert.equal(mockError, error);
+      });
 
     // ensure client can still send data
     assert.ok(DiscordManager.sendDiscordMessage(newTag1, 'fakeChannel', 'some message'));
@@ -127,7 +126,7 @@ describe('sendDiscordMessage', () => {
     
     try {
       await DiscordManager.sendDiscordMessage(newTag1, 'nonExistentChannel', mockDiscordMessage);
-      fail("expected to throw an error..");
+      assert.fail("expected to throw an error..");
     } catch(error) {
       assert.equal("Cannot find a channel with name: nonExistentChannel", error);
     }
@@ -141,7 +140,7 @@ describe('sendDiscordMessage', () => {
     
     try {
       await DiscordManager.sendDiscordMessage('nonExistedTag', 'fakeChannel', mockDiscordMessage);
-      fail("expected to throw an error..");
+      assert.fail("expected to throw an error..");
     } catch(error) {
       assert.equal("Cannot find client matching tag: nonExistedTag", error);
     }
@@ -155,7 +154,7 @@ describe('sendDiscordMessage', () => {
     
     try {
       await DiscordManager.sendDiscordMessage(newTag1, 'nonExistentChannel', mockDiscordMessage);
-      fail("expected to throw an error..");
+      assert.fail("expected to throw an error..");
     } catch(error) {
       assert.equal("Cannot find a channel with name: nonExistentChannel", error);
     }
@@ -169,7 +168,7 @@ describe('sendDiscordMessage', () => {
     
     try {
       await DiscordManager.sendDiscordMessage(newTag1, 'fakeChannel', mockDiscordMessage);
-      fail("expected to throw an error..");
+      assert.fail("expected to throw an error..");
     } catch(error) {
       assert.equal("Message cannot be 2000 characters long!", error);
     }
@@ -214,7 +213,7 @@ describe('Clients should not interfere with eachother', () => {
     } catch(err) {
       // Ensure it's the error from the mock, not an assert.fail error
       assert.equal('Testing error', err);
-    };
+    }
     
     // non-failing client should still be able to send messages
     assert.equal('suceeded', await DiscordManager.sendDiscordMessage(newTag2, 'fakeChannel2', 'hello from client2...'));
@@ -236,7 +235,7 @@ describe('Clients should not interfere with eachother', () => {
 
 function createFakeSendFunctionThrowsErrorOnFirstSend(errorToThrow) {
   let i = 0;
-  return function(message) {
+  return function() {
     i++;
     return i==1 ? Promise.reject(errorToThrow) : Promise.resolve();
   };
