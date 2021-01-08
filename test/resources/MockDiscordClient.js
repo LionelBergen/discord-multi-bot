@@ -4,6 +4,9 @@ const sinon = require('sinon');
 
 const sandbox = sinon.createSandbox();
 
+/**
+ * Mock Discord.js Client
+*/
 class FakeDiscordClient {
   constructor(expectedDiscordToken, tag, channels) {
     this.expectedDiscordToken = expectedDiscordToken;
@@ -46,6 +49,9 @@ class FakeDiscordClient {
   }
 }
 
+/**
+ * A Mock Discord Client that will throw an error on the 'login' method
+*/
 class FakeDiscordClientThrowsErrors extends FakeDiscordClient {
   login() {
     return Promise.reject('ERROR!');
@@ -60,9 +66,7 @@ class MockDiscordClientHandler {
     this.resetAllVariables();
   }
   
-  /**
-   * This will most likely need to be called in between tests
-  */
+  // Think of this as a private method. Helps the 'reset' method
   resetAllVariables() {
     this.loginCalls = 0;
     this.clientConstructorStub = sandbox.stub(Discord, 'Client');
