@@ -8,6 +8,8 @@ class FakeDiscordClient {
   constructor(expectedDiscordToken, tag, channels) {
     this.expectedDiscordToken = expectedDiscordToken;
     this.channels = channels || [];
+    this.loginCalled = false;
+    this.destroyCalled = false;
     this.errorEventFunction;
     this.readyEvent;
   }
@@ -28,15 +30,18 @@ class FakeDiscordClient {
     this.readyEvent('ready');
   }
   
+  // This method should not be called in a test, rather we expect it to be called from in the program
   login(discordToken) {
     assert.equal(this.expectedDiscordToken, discordToken);
     // This is normally set by Discord.js sometime before the ready.
     // It needs to be set for the 'login' function to pass
     this.user = {tag: 'user#' + discordToken };
+    this.loginCalled = true;
     return Promise.resolve('Mock Client Logged In');
   }
   
   destroy() {
+    this.destroyCalled = true;
     return Promise.resolve();
   }
 }
@@ -114,6 +119,26 @@ class MockDiscordClientHandler {
   activateReadyEvent(clientTag) {
     const discordMockClient = this.discordMockClients.find(e => e.user.tag === clientTag);
     discordMockClient.activateReadyEvent();
+  }
+  
+  /**
+   * Returns true if the login method was called, false otherwise
+   *
+   * @param clientTag - ClientTag of the DiscordClient
+  */
+  wasLoginMethodCalled(clientTag) {
+    const discordMockClient = this.discordMockClients.find(e => e.user.tag === clientTag);
+    return discordMockClient.loginCalled;
+  }
+  
+  /**
+   * Returns true if the 'destroy' method was called, false otherwise
+   *
+   * @param clientTag - ClientTag of the DiscordClient
+  */
+  wasDestroyMethodCalled(clientTag) {
+    const discordMockClient = this.discordMockClients.find(e => e.user.tag === clientTag);
+    return discordMockClient.destroyCalled;
   }
   
   /**

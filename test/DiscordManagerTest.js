@@ -17,10 +17,12 @@ describe('Init Discord Client', () => {
     
     const newTag1 = await DiscordManager.initNewDiscordClient(fakeDiscordToken1);
     assert.ok(newTag1);
+    assert.ok(MockDiscordClient.wasLoginMethodCalled(newTag1));
     
     MockDiscordClient.expectDiscordNewClientCall(fakeDiscordToken2);
     const newTag2 = await DiscordManager.initNewDiscordClient(fakeDiscordToken2);
     assert.ok(newTag2);
+    assert.ok(MockDiscordClient.wasLoginMethodCalled(newTag2));
   });
   
   it('When Discord init throws error', async () => {
@@ -185,7 +187,9 @@ describe('LogoutOfDiscord', () => {
     MockDiscordClient.activateReadyEvent(newTag2);
     
     assert.ok(DiscordManager.logoutOfDiscord(newTag1));
+    assert.ok(MockDiscordClient.wasDestroyMethodCalled(newTag1));
     assert.ok(DiscordManager.logoutOfDiscord(newTag2));
+    assert.ok(MockDiscordClient.wasDestroyMethodCalled(newTag2));
   });
 });
 
@@ -229,8 +233,6 @@ describe('Clients should not interfere with eachother', () => {
     assert.equal('suceeded', await DiscordManager.sendDiscordMessage(newTag3, 'fakeChannel3', 'hello from client3....'));
   });
 });
-
-// TODO: Add mock methods for asserting that the Discord.js calls were made
 
 function createFakeSendFunctionThrowsErrorOnFirstSend(errorToThrow) {
   let i = 0;
